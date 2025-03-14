@@ -19,31 +19,46 @@ const Student = mongoose.model('Student', {
     age: Number  
 }, 'studentData');
 
-//save student, use.save, returns true or false msg based on result
+//save student, use.save, try catch for error handling
 const save = async (req, res) => {  
-    res.send(await new Student(req.body).save().then(() => ({ inserted: true })).catch(() => ({ inserted: false })));  
+    try {  
+        await new Student(req.body).save();  
+        res.send({ inserted: true });  
+    } catch {  
+        res.send({ inserted: false });  
+    }  
 };
 
-//update student, use updateOne, example: Mary Jane Watson to Mary Jane Parker, false if not updated
+//update student, use updateOne, example: Mary Jane Watson to Mary Jane Parker, try catch for error handling
 const upd = async (req, res) => {  
-    res.send(await Student.updateOne(  
-        { fname: req.body.fname },  
-        { $set: { fname: req.body.newFname, lname: 'Parker' } }  
-    ).then(result => result).catch(err => ({ error: false })));  
+    try {  
+        res.send(await Student.updateOne(  
+            { fname: req.body.fname },  
+            { $set: { fname: req.body.newFname, lname: 'Parker' } }  
+        ));  
+    } catch {  
+        res.send({ error: false });  
+    }  
 };
 
-//remove user, use deleteOne, returns true or false based on result
-const rem = async (req, res) => {  
-    res.send(await Student.deleteOne({ stdnum: req.body.stdnum })  
-        .then(() => ({ deleted: true }))  
-        .catch(() => ({ deleted: false })));  
+//remove user, use deleteOne, try catch for error handling
+const rem = async (req, res) => {
+  try {
+    await Student.deleteOne({ stdnum: req.body.stdnum });
+    res.send({ deleted: true });
+  } catch {
+    res.send({ deleted: false });
+  }
 };
 
-//remove all users, use deleteMany, returns true or false based on result
+//remove all users, use deleteMany, try catch for error handling 
 const remAll = async (req, res) => {
-  res.send(await Student.deleteMany({})
-    .then(result => ({ deleted: result.deletedCount > 0 }))
-    .catch(err => ({ deleted: false })));
+  try {
+    const result = await Student.deleteMany({});
+    res.send({ deleted: result.deletedCount > 0 });
+  } catch {
+    res.send({ deleted: false });
+  }
 };
 
 //get user by stud num, use find with stud num, returns empty array if none
